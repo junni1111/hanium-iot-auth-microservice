@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,14 +11,33 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
   findOne(email: string) {
-    return this.userRepository.find({ email });
+    console.log(`Call FInd ONE`);
+    return this.userRepository.findOne({ email });
   }
 
-  async create(dto: CreateUserDto) {
-    const newUser = User.createUser(dto);
-    const user = await this.userRepository.create(newUser);
+  async createUser(dto: CreateUserDto) {
+    try {
+      const user = await this.userRepository.create(User.createUser(dto));
+      return this.userRepository.save(user);
+    } catch (e) {
+      /** Todo: Handle Already Exist User Exception */
+    }
+  }
 
-    return this.userRepository.save(user);
+  // /** Todo: Replace to JWT */
+  // async signIn({ email }: CreateUserDto) {
+  //   return this.userRepository.find({ email });
+  // }
+
+  async signUp(dto: CreateUserDto) {
+    const exist = await this.userRepository.findOne({ email: dto.email });
+    console.log(`find result: `, exist);
+    if (exist) {
+      return new BadRequestException('이미 존재하는 이메일입니다.');
+    }
+
+    const user = await this.userRepository.create(User.createUser(dto));
+    return await this.userRepository.save(user);
   }
 
   // findOne(email: string) {

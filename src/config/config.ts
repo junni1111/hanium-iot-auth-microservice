@@ -4,16 +4,7 @@ import * as dotenv from 'dotenv';
 /** Todo: Refactor to service */
 export default () => {
   dotenv.config({
-    path: path.join(
-      __dirname,
-      process.env.NODE_ENV === 'production'
-        ? '../../env/.env.production'
-        : process.env.NODE_ENV === 'test'
-        ? '../../env/.env.test'
-        : process.env.NODE_ENV === 'development'
-        ? '../../env/.env.development'
-        : '../../env/.env',
-    ),
+    path: path.join(__dirname, `../../env/.env.${process.env.NODE_ENV}`),
   });
 };
 

@@ -3,6 +3,8 @@ import {
   Column,
   CreateDateColumn,
   PrimaryGeneratedColumn,
+  Unique,
+  Index,
 } from 'typeorm';
 import { CreateUserDto } from '../dto/create-user.dto';
 
@@ -11,6 +13,7 @@ export class User {
   @PrimaryGeneratedColumn({ type: 'integer' })
   id: number;
 
+  @Index({ unique: true })
   @Column()
   email: string;
 

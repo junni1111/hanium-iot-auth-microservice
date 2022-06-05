@@ -24,42 +24,18 @@ import {
   hash,
   hashSync,
 } from 'bcrypt';
-import { USER_AUTH_MICROSERVICE } from '../util/constants/microservices';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(USER_AUTH_MICROSERVICE) private readonly client: ClientProxy,
+    private userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
 
-  sendMessage(pattern: any, message: any): Observable<any> {
-    return this.client.send(pattern, message).pipe(
-      map((data) => {
-        console.log(`data`, data);
-        return data;
-      }),
-      catchError((e) => {
-        throw new GatewayTimeoutException(e);
-      }),
-    );
-  }
   async validateUser(email: string, password: string) {
     try {
-      Logger.debug(`Call Validate User`, email, password);
-      const user = await lastValueFrom(
-        /** Todo: Find DB
-         *        Replace Message Pattern */
-        this.client.send({ role: `user`, cmd: `get` }, { email }).pipe(
-          timeout(5000),
-          catchError((err) => {
-            if (err instanceof TimeoutError) {
-              return throwError(new RequestTimeoutException());
-            }
-            return throwError(err);
-          }),
-        ),
-      );
+      const user = await this.userService.findOne(email);
       const salt = await genSalt();
       /** Todo: Replace to Hashed Password from DB */
       const mockUserPassword = await hash(user?.password, salt);

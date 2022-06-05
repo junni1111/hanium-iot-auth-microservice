@@ -8,8 +8,8 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { MessagePattern } from '@nestjs/microservices';
-import { AuthGuard } from './guards/auth.guard';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+// import { AuthGuard } from './guards/auth.guard';
 import { Response } from 'express';
 
 @Controller()
@@ -17,12 +17,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post(`auth/login`)
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  @MessagePattern({ cmd: 'sign_in' })
+  async login(@Payload() data: any) {
+    return this.authService.login(data);
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post(`auth/jwt`)
   useJwt(@Res() res: Response) {
     Logger.log(`You Pass Auth`);

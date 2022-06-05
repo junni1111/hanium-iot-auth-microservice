@@ -7,10 +7,24 @@ import { CreateUserDto } from './dto/create-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('user')
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
+  // @Post('user')
+  // createUser(@Body() createUserDto: CreateUserDto) {
+  //   return this.userService.create(createUserDto);
+  // }
+
+  @MessagePattern({ cmd: 'sign_up' })
+  async createUser(@Payload() createUserDto: CreateUserDto) {
+    console.log(`From Gateway: `, createUserDto);
+    return this.userService.signUp(createUserDto);
   }
+
+  // /** Todo: Replace to JWT*/
+  // @MessagePattern({ cmd: 'sign_in' })
+  // async signIn(@Payload() createUserDto: CreateUserDto) {
+  //   console.log(`From Gateway: `, createUserDto);
+  //
+  //   return this.userService.signIn(createUserDto);
+  // }
 
   // @Get('user/:id')
   // findUser(@Param('id') id: string) {

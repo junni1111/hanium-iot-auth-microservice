@@ -11,7 +11,7 @@ import {
 } from '../util/constants/database';
 import * as path from 'path';
 import DatabaseConfigs from '../config/config';
-import { User } from '../user/entities/user.entity';
+import { Logger } from '@nestjs/common';
 /** Todo: Refactor to service */
 DatabaseConfigs();
 
@@ -20,7 +20,7 @@ class DatabaseService {
 
   private getValue(key: string, throwOnMissing = true): string {
     const value = this.env[key];
-    console.log(`Get Database Key, value: `, key, value);
+    Logger.debug(`Get Database Key: ${key}, value: ${value}`);
     if (!value && throwOnMissing) {
       throw new Error(`Config Error - Missing env.${key}`);
     }
@@ -43,10 +43,6 @@ class DatabaseService {
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
-    console.log(
-      `User Entity Path: `,
-      path.join(__dirname, '../../**/*.entity{.ts,.js}'),
-    );
     return {
       type: POSTGRES,
       host: this.getValue(DATABASE_HOST),
@@ -55,21 +51,12 @@ class DatabaseService {
       password: this.getValue(DATABASE_PASSWORD),
       port: parseInt(this.getValue(DATABASE_PORT)),
 
-      entities: [
-        path.join(__dirname, '../**/*.entity.{ts,js}'),
-        // `/**/*.entity.{ts,js}`,
-        // path.join(__dirname, '../**/*.entity{.ts,.js}'),
-      ],
-      // entities: [User],
+      entities: [path.join(__dirname, '../**/*.entity.{ts,js}')],
       // migrationsTableName: 'migration',
       // migrations: ['src/migration/*.ts'],
-
       // cli: {
       //   migrationsDir: 'src/migration',
       // },
-
-      /**
-       * Todo: SSL key 추가 */
       // ssl: this.isProduction(),
       synchronize: true,
     };
