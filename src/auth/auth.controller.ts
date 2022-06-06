@@ -1,16 +1,8 @@
-import {
-  Controller,
-  Post,
-  UseGuards,
-  Request,
-  Logger,
-  Res,
-} from '@nestjs/common';
+import { Controller, UseGuards, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-// import { AuthGuard } from './guards/auth.guard';
-import { Response } from 'express';
+import { AuthGuard } from './guards/auth.guard';
 
 @Controller()
 export class AuthController {
@@ -19,31 +11,15 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @MessagePattern({ cmd: 'sign_in' })
   async login(@Payload() data: any) {
+    console.log(`Login Controller: `, data);
     return this.authService.login(data);
   }
 
-  // @UseGuards(AuthGuard)
-  @Post(`auth/jwt`)
-  useJwt(@Res() res: Response) {
-    Logger.log(`You Pass Auth`);
+  @UseGuards(AuthGuard)
+  @MessagePattern({ cmd: 'jwt' })
+  async auth(@Payload() payload: any) {
+    Logger.debug(`Pass Auth`, payload);
 
-    return res.send(`You Pass Auth`);
+    return payload;
   }
-
-  @MessagePattern({ role: 'auth', cmd: 'check' })
-  async auth(authDto: any) {
-    const { jwt } = authDto;
-    Logger.debug(`Call Auth`, jwt);
-
-    return this.authService.validateToken(jwt);
-  }
-
-  // @MessagePattern({ role: `user`, cmd: `get` })
-  // async getUser(data: any) {
-  //   Logger.debug(`Call getUser`, data);
-  //
-  //   const user = { userName: `jee`, password: `123123` };
-  //
-  //   return user;
-  // }
 }

@@ -1,8 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { genSalt, hash } from 'bcrypt';
+import { HASH_ROUNDS } from '../config/crypto.config';
 
 @Injectable()
 export class UserService {
@@ -29,15 +31,26 @@ export class UserService {
   //   return this.userRepository.find({ email });
   // }
 
-  async signUp(dto: CreateUserDto) {
-    const exist = await this.userRepository.findOne({ email: dto.email });
-    console.log(`find result: `, exist);
+  async signUp(createUserDto: CreateUserDto) {
+    const exist = await this.userRepository.findOne({
+      email: createUserDto.email,
+    });
+    Logger.debug(`Find User: `, exist?.email);
+
     if (exist) {
       return new BadRequestException('이미 존재하는 이메일입니다.');
     }
 
-    const user = await this.userRepository.create(User.createUser(dto));
-    return await this.userRepository.save(user);
+    const salt = await genSalt(HASH_ROUNDS);
+    createUserDto.password = await hash(createUserDto.password, salt);
+
+    const user = await this.userRepository.create(
+      User.createUser(createUserDto),
+    );
+
+    console.log(`Save User: `, user);
+
+    return this.userRepository.save(user);
   }
 
   // findOne(email: string) {

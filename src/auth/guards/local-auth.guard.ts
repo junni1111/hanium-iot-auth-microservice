@@ -11,17 +11,15 @@ export class LocalAuthGuard implements CanActivate {
   constructor(private authService: AuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const payload = context.switchToRpc().getData();
+    const request = context.switchToHttp().getRequest();
+    Logger.debug(`Request: `, request);
+    const { email, password } = request.user;
 
     try {
-      const user = await this.authService.validateUser(
-        payload.email,
-        payload.password,
-      );
-      payload.password = null;
-      Object.assign(payload, user);
+      const user = await this.authService.validateUser(email, password);
+      Object.assign(request, user);
 
-      return user !== null;
+      return user !== null; // 🤔
     } catch (e) {
       Logger.error(`Auth Guard Exception`, e);
       throw e;

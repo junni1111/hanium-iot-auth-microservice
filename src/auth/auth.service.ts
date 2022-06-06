@@ -1,9 +1,12 @@
 import {
+  ForbiddenException,
   GatewayTimeoutException,
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
   RequestTimeoutException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
@@ -36,14 +39,19 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     try {
       const user = await this.userService.findOne(email);
-      const salt = await genSalt();
-      /** Todo: Replace to Hashed Password from DB */
-      const mockUserPassword = await hash(user?.password, salt);
+      if (!user) {
+        /** Todo: Send NotFoundException */
+        return new NotFoundException('존재하지 않는 사용자입니다');
+      }
 
-      if (await compare(password, mockUserPassword)) {
+      Logger.debug(`Find User: `, user);
+
+      if (await compare(password, user.password)) {
         const { password, ...userWithoutPassword } = user;
         return userWithoutPassword;
       }
+
+      /** Todo: Send UnauthorizedException */
 
       return null;
     } catch (e) {

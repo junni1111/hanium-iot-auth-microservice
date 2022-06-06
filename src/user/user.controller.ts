@@ -2,6 +2,7 @@ import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ResponseStatus } from '../interfaces/response-status';
 
 @Controller()
 export class UserController {
@@ -13,8 +14,7 @@ export class UserController {
   // }
 
   @MessagePattern({ cmd: 'sign_up' })
-  async createUser(@Payload() createUserDto: CreateUserDto) {
-    console.log(`From Gateway: `, createUserDto);
+  async signUp(@Payload() createUserDto: CreateUserDto) {
     return this.userService.signUp(createUserDto);
   }
 
@@ -30,16 +30,16 @@ export class UserController {
   // findUser(@Param('id') id: string) {
   //   return this.userService.findOne(id);
   // }
-
-  /**
-   * Todo: Connect DB */
-  // Todo: Change to DTO
-  @MessagePattern({ role: `user`, cmd: `get` })
-  async findOne(@Payload() dto: any) {
-    const { email } = dto;
-    const filteredUser = this.userService.findOne(email);
-    Logger.debug(`Filtered User: `, filteredUser);
-
-    return filteredUser;
-  }
+  //
+  // /**
+  //  * Todo: Connect DB */
+  // // Todo: Change to DTO
+  // @MessagePattern({ role: `user`, cmd: `get` })
+  // async findOne(@Payload() dto: any) {
+  //   const { email } = dto;
+  //   const filteredUser = this.userService.findOne(email);
+  //   Logger.debug(`Filtered User: `, filteredUser);
+  //
+  //   return filteredUser;
+  // }
 }
