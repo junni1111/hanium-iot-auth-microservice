@@ -28,6 +28,7 @@ import {
   hashSync,
 } from 'bcrypt';
 import { UserService } from '../user/user.service';
+import { ValidateJwtDto } from './dto/validate-jwt.dto';
 
 @Injectable()
 export class AuthService {
@@ -69,8 +70,9 @@ export class AuthService {
     };
   }
 
-  validateToken(jwt: string) {
-    Logger.debug(`Validate Token`, jwt);
+  validateToken(authorization: string) {
+    const jwt = authorization?.split(' ')[1];
+
     return this.jwtService.verify(jwt);
   }
 }

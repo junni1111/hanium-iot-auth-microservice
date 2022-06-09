@@ -17,7 +17,8 @@ export class LocalAuthGuard implements CanActivate {
 
     try {
       const user = await this.authService.validateUser(email, password);
-      Object.assign(request, user);
+      request.user = user;
+      console.log(`In Guard: `, request);
 
       return user !== null; // 🤔
     } catch (e) {
