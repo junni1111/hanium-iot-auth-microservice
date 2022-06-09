@@ -41,9 +41,6 @@ export class UserService {
       return new BadRequestException('이미 존재하는 이메일입니다.');
     }
 
-    const salt = await genSalt(HASH_ROUNDS);
-    createUserDto.password = await hash(createUserDto.password, salt);
-
     const user = await this.userRepository.create(
       User.createUser(createUserDto),
     );

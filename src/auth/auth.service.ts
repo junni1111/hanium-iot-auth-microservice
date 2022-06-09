@@ -1,38 +1,16 @@
-import {
-  ForbiddenException,
-  GatewayTimeoutException,
-  Inject,
-  Injectable,
-  Logger,
-  NotFoundException,
-  RequestTimeoutException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
-import {
-  catchError,
-  lastValueFrom,
-  map,
-  Observable,
-  throwError,
-  timeout,
-  TimeoutError,
-} from 'rxjs';
-import {
-  compare,
-  compareSync,
-  genSalt,
-  genSaltSync,
-  hash,
-  hashSync,
-} from 'bcrypt';
+import { compare } from 'bcrypt';
 import { UserService } from '../user/user.service';
-import { ValidateJwtDto } from './dto/validate-jwt.dto';
+import { jwtConfigs } from '../config/jwt.config';
+import { Cache } from 'cache-manager';
+import { RefreshTokenKey } from '../util/key-generator';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
@@ -59,8 +37,23 @@ export class AuthService {
     }
   }
 
+  async signRefreshToken(userId: number) {
+    const refreshToken = this.jwtService.sign(
+      { userId },
+      {
+        secret: jwtConfigs.refreshSecret,
+        expiresIn: jwtConfigs.refreshExpiresIn,
+      },
+    );
+
+    const key = RefreshTokenKey(userId);
+    this.cacheManager.set<string>(key, refreshToken, { ttl: 1209600 }); // 🤔 2주
+  }
+
   async login(user) {
     const payload = { user, sub: user?.id };
+    /**
+     * Todo: Create Refresh Token and Cache to redis */
 
     return {
       userId: user?.id,
