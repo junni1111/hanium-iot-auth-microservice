@@ -1,1 +1,1 @@
-export const RefreshTokenKey = (userId: number) => `refresh-token/${userId}`;
+export const RefreshTokenKey = (email: string) => `refresh-token/${email}`;

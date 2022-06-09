@@ -1,5 +1,4 @@
 import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { UserService } from '../user/user.service';
@@ -37,31 +36,49 @@ export class AuthService {
     }
   }
 
-  async signRefreshToken(userId: number) {
-    const refreshToken = this.jwtService.sign(
-      { userId },
-      {
+  async signRefreshToken({ user }: any) {
+    try {
+      const token = this.jwtService.sign(user, {
         secret: jwtConfigs.refreshSecret,
         expiresIn: jwtConfigs.refreshExpiresIn,
-      },
-    );
+      });
 
-    const key = RefreshTokenKey(userId);
-    this.cacheManager.set<string>(key, refreshToken, { ttl: 1209600 }); // 🤔 2주
+      const key = RefreshTokenKey(user.email);
+      await this.cacheManager.set<string>(key, token, { ttl: 1209600 }); // 🤔 2주
+
+      return token;
+    } catch (e) {
+      Logger.error(e);
+      throw e;
+    }
   }
 
-  async login(user) {
-    const payload = { user, sub: user?.id };
-    /**
-     * Todo: Create Refresh Token and Cache to redis */
+  signAccessToken(payload: any) {
+    return this.jwtService.sign(payload);
+  }
+
+  async getNewAccessToken(token: string) {
+    const decoded = this.jwtService.decode(token);
+
+    const key = RefreshTokenKey(decoded['user']['email']); // 🤔 Need Refactor!!
+    console.log(`Get Decoded key: `, key);
+    const refreshToken = await this.cacheManager.get<string>(key);
+
+    console.log(`Decoded Result: `, refreshToken);
+  }
+
+  async login(user: any) {
+    const accessToken = this.signAccessToken(user);
+    const refreshToken = await this.signRefreshToken(user);
 
     return {
       userId: user?.id,
-      accessToken: this.jwtService.sign(payload),
+      accessToken,
+      refreshToken,
     };
   }
 
-  validateToken(jwt: string) {
-    return this.jwtService.verify(jwt);
+  validateToken(token: string) {
+    return this.jwtService.verify(token);
   }
 }

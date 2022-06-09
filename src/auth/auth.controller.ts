@@ -15,6 +15,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @MessagePattern({ cmd: 'sign_in' })
   async login(@Payload() data: any) {
+    console.log(`Login Data: `, data);
     return this.authService.login(data);
   }
 
@@ -23,13 +24,17 @@ export class AuthController {
     const jwt = authorization?.split(' ')[1];
 
     try {
-      return this.authService.validateToken(jwt);
+      const result = this.authService.validateToken(jwt);
+      // console.log(`Decode Token: `, result);
+      return result;
     } catch (e) {
       Logger.debug(e.name);
       Logger.debug(e.message);
 
       switch (e.name) {
         case 'TokenExpiredError':
+          /** Todo: Refresh Token으로 재발급*/
+          await this.authService.getNewAccessToken(jwt);
           return new UnauthorizedException('Token 유효 시간 끝남');
         case 'JsonWebTokenError':
           return new UnauthorizedException('Token 유효하지 않음');
