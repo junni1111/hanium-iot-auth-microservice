@@ -37,23 +37,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string) {
+  async validateUser(email: string, rawPassword: string) {
     try {
       const user = await this.userService.findOne(email);
       if (!user) {
         /** Todo: Send NotFoundException */
-        return new NotFoundException('존재하지 않는 사용자입니다');
+        return null;
       }
 
       Logger.debug(`Find User: `, user);
 
-      if (await compare(password, user.password)) {
+      if (await compare(rawPassword, user.password)) {
         const { password, ...userWithoutPassword } = user;
         return userWithoutPassword;
       }
-
       /** Todo: Send UnauthorizedException */
-
       return null;
     } catch (e) {
       Logger.error(e);
@@ -70,9 +68,7 @@ export class AuthService {
     };
   }
 
-  validateToken(authorization: string) {
-    const jwt = authorization?.split(' ')[1];
-
+  validateToken(jwt: string) {
     return this.jwtService.verify(jwt);
   }
 }

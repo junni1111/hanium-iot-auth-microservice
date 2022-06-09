@@ -10,12 +10,8 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { ExceptionFilter } from './guards/filters/exception.filter';
-import { ValidateJwtDto } from './dto/validate-jwt.dto';
 
 @Controller()
-// @UseFilters(ExceptionFilter)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -27,11 +23,10 @@ export class AuthController {
 
   @MessagePattern({ cmd: 'jwt' })
   async auth(@Payload() { authorization }: any) {
+    const jwt = authorization?.split(' ')[1];
+
     try {
-      console.log(`payload: `, authorization);
-      const authResult = await this.authService.validateToken(authorization);
-      console.log(authResult);
-      return authResult;
+      return this.authService.validateToken(jwt);
     } catch (e) {
       Logger.debug(e.name);
       Logger.debug(e.message);
