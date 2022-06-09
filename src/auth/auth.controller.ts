@@ -2,9 +2,6 @@ import {
   Controller,
   UseGuards,
   Logger,
-  Headers,
-  UseFilters,
-  RequestTimeoutException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
