@@ -2,7 +2,7 @@ import { Controller, UseGuards, Logger } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { AuthGuard } from './guards/auth.guard';
+import { JwtAuthGuard } from './guards/auth.guard';
 
 @Controller()
 export class AuthController {
@@ -15,7 +15,7 @@ export class AuthController {
     return this.authService.login(data);
   }
 
-  @UseGuards(AuthGuard)
+  @UseGuards(JwtAuthGuard)
   @MessagePattern({ cmd: 'jwt' })
   async auth(@Payload() payload: any) {
     Logger.debug(`Pass Auth`, payload);
