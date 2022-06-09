@@ -14,12 +14,6 @@ export class AuthGuard extends AuthG {
     Logger.debug(`In Auth Guard: `, request);
     try {
       const jwt = request['authorization']?.split(' ')[1];
-      if (!jwt) {
-        Logger.error(`JWT Find Exception`, jwt);
-
-        return false;
-      }
-
       const user = this.authService.validateToken(jwt);
       Logger.debug(`Validate Result: `, user);
       request.user = user;
