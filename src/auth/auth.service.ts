@@ -1,4 +1,10 @@
-import { CACHE_MANAGER, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { UserService } from '../user/user.service';
@@ -36,15 +42,19 @@ export class AuthService {
     }
   }
 
-  async signRefreshToken({ user }: any) {
+  async signRefreshToken(user: any) {
     try {
-      const token = this.jwtService.sign(user, {
-        secret: jwtConfigs.refreshSecret,
-        expiresIn: jwtConfigs.refreshExpiresIn,
-      });
+      const token = this.jwtService.sign(
+        {},
+        {
+          secret: jwtConfigs.refreshSecret,
+          expiresIn: jwtConfigs.refreshExpiresIn,
+        },
+      );
 
       const key = RefreshTokenKey(user.email);
       await this.cacheManager.set<string>(key, token, { ttl: 1209600 }); // 🤔 2주
+      Logger.debug(await this.cacheManager.get<string>(key));
 
       return token;
     } catch (e) {
@@ -53,18 +63,26 @@ export class AuthService {
     }
   }
 
-  signAccessToken(payload: any) {
-    return this.jwtService.sign(payload);
+  signAccessToken(user: any) {
+    return this.jwtService.sign({ user });
   }
 
-  async getNewAccessToken(token: string) {
-    const decoded = this.jwtService.decode(token);
+  async compareRefreshToken(user: any, refreshToken: string) {
+    const key = RefreshTokenKey(user['email']); // 🤔 Need Refactor!!
+    const cachedRefreshToken = await this.cacheManager.get<string>(key);
 
-    const key = RefreshTokenKey(decoded['user']['email']); // 🤔 Need Refactor!!
-    console.log(`Get Decoded key: `, key);
-    const refreshToken = await this.cacheManager.get<string>(key);
+    return refreshToken === cachedRefreshToken;
+  }
 
-    console.log(`Decoded Result: `, refreshToken);
+  async regenerateAccessToken(accessToken: string, refreshToken: string) {
+    const decoded = this.jwtService.decode(accessToken);
+    const user = decoded['user'];
+
+    if (await this.compareRefreshToken(user, refreshToken)) {
+      return this.signAccessToken(user);
+    }
+
+    return null;
   }
 
   async login(user: any) {

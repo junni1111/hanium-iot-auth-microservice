@@ -1,8 +1,10 @@
 import {
   Controller,
-  UseGuards,
+  InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -14,33 +16,41 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @MessagePattern({ cmd: 'sign_in' })
-  async login(@Payload() data: any) {
-    console.log(`Login Data: `, data);
-    return this.authService.login(data);
+  async login(@Payload() { user }: any) {
+    return this.authService.login(user);
+  }
+
+  @MessagePattern({ cmd: 'refresh' })
+  refresh(@Payload() tokens: any) {
+    try {
+      return this.authService.regenerateAccessToken(
+        tokens.accessToken,
+        tokens.refreshToken,
+      );
+    } catch (e) {
+      Logger.error(e);
+    }
   }
 
   @MessagePattern({ cmd: 'jwt' })
-  async auth(@Payload() { authorization }: any) {
-    const jwt = authorization?.split(' ')[1];
-
+  async auth(@Payload() jwt: string) {
     try {
-      const result = this.authService.validateToken(jwt);
-      // console.log(`Decode Token: `, result);
-      return result;
+      return this.authService.validateToken(jwt);
     } catch (e) {
       Logger.debug(e.name);
       Logger.debug(e.message);
 
       switch (e.name) {
         case 'TokenExpiredError':
-          /** Todo: Refresh Token으로 재발급*/
-          await this.authService.getNewAccessToken(jwt);
+          /** Todo: Frontend에서 401 에러받으면 Refresh Token 재발급 요청 */
           return new UnauthorizedException('Token 유효 시간 끝남');
         case 'JsonWebTokenError':
-          return new UnauthorizedException('Token 유효하지 않음');
+          return new NotFoundException('Token 유효하지 않음');
         case 'NotBeforeError':
-          return new UnauthorizedException(e.message);
+          return new NotFoundException(e.message);
         default:
+          Logger.error(`JWT authentication unhandled exception`, e.message);
+          return new InternalServerErrorException(e.message);
       }
     }
   }
