@@ -8,7 +8,7 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-EXPOSE 9990 9999
+EXPOSE 9000 9999
 
 
 CMD ["npm", "run", "start:prod"]
