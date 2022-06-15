@@ -11,8 +11,8 @@ import {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  console.log(`ENV Level: `, process.env.NODE_ENV);
-  console.log(`ENV List: `, process.env);
+  Logger.log(`ENV Level: `, process.env.NODE_ENV);
+  Logger.log(`ENV List: `, process.env);
 
   await app.connectMicroservice({
     transport: Transport.TCP,
