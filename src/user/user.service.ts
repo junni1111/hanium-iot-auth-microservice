@@ -33,7 +33,7 @@ export class UserService {
       Logger.debug(`Find User: `, exist?.email);
 
       if (exist) {
-        throw new BadRequestException('이미 존재하는 이메일입니다.');
+        throw new BadRequestException('Email Exist');
       }
 
       const user = await this.userRepository.create(
