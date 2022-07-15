@@ -10,8 +10,8 @@ export class UserService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
+
   findOne(email: string) {
-    console.log(`Call FInd ONE`);
     return this.userRepository.findOne({ email });
   }
 
@@ -37,14 +37,16 @@ export class UserService {
 
   async signUp(createUserDto: CreateUserDto) {
     const { email, password, username } = createUserDto;
-    const exist = await this.userRepository.findOne({
-      email,
-    });
-    Logger.debug(`Find User: `, exist?.email);
+    try {
+      const exist = await this.userRepository.findOne({
+        email,
+      });
+      Logger.debug(`Find User: `, exist?.email);
 
-    if (exist) {
-      return new BadRequestException('이미 존재하는 이메일입니다.');
-    }
+
+      if (exist) {
+        throw new BadRequestException('Email Exist');
+      }
 
     const user = await this.userRepository.create({
       email,
@@ -52,9 +54,12 @@ export class UserService {
       username,
     });
 
-    console.log(`Save User: `, user);
+      console.log(`Save User: `, user);
 
-    return this.userRepository.save(user);
+      return this.userRepository.save(user);
+    } catch (e) {
+      throw e;
+    }
   }
 
   // findOne(email: string) {

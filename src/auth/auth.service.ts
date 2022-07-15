@@ -1,9 +1,11 @@
 import {
   CACHE_MANAGER,
+  ForbiddenException,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
@@ -23,9 +25,10 @@ export class AuthService {
   async validateUser(email: string, rawPassword: string) {
     try {
       const user = await this.userService.findOne(email);
+      console.log('user : ', user);
       if (!user) {
-        /** Todo: Send NotFoundException */
-        return null;
+        console.log('user does not exist');
+        throw new NotFoundException('User Does Not Exist');
       }
 
       Logger.debug(`Find User: `, user);
@@ -34,10 +37,9 @@ export class AuthService {
         const { password, ...userWithoutPassword } = user;
         return userWithoutPassword;
       }
-      /** Todo: Send UnauthorizedException */
-      return null;
+
+      throw new UnauthorizedException(`Password Invalid`);
     } catch (e) {
-      Logger.error(e);
       throw e;
     }
   }
@@ -75,17 +77,20 @@ export class AuthService {
   }
 
   async regenerateAccessToken(accessToken: string, refreshToken: string) {
-    const decoded = this.jwtService.decode(accessToken);
-    const user = decoded['user'];
+    try {
+      const decoded = this.jwtService.decode(accessToken);
+      const user = decoded['user'];
 
-    if (await this.compareRefreshToken(user, refreshToken)) {
-      return this.signAccessToken(user);
+      if (await this.compareRefreshToken(user, refreshToken)) {
+        return this.signAccessToken(user);
+      }
+      throw new ForbiddenException('Jwt Not Validated');
+    } catch (e) {
+      throw new ForbiddenException('Jwt Not Validated');
     }
-
-    return null;
   }
 
-  async login(user: any) {
+  async signIn(user: any) {
     const accessToken = this.signAccessToken(user);
     const refreshToken = await this.signRefreshToken(user);
 
@@ -97,6 +102,11 @@ export class AuthService {
   }
 
   validateToken(token: string) {
-    return this.jwtService.verify(token);
+    try {
+      console.log('jwt : ', token);
+      return this.jwtService.verify(token);
+    } catch (e) {
+      throw new ForbiddenException('Jwt Not Validated');
+    }
   }
 }
