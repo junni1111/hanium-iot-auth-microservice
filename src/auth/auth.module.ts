@@ -13,7 +13,7 @@ import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
 @Module({
   imports: [
     UserModule,
-    PassportModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     /** Todo: Remove AUTH MS After */
     JwtModule.register({
       secret: jwtConfigs.secret,
