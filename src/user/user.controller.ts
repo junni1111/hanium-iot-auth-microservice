@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ResponseStatus } from '../interfaces/response-status';
 
 @Controller()
 export class UserController {

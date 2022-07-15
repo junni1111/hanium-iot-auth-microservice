@@ -3,8 +3,6 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
-import { genSalt, hash } from 'bcrypt';
-import { HASH_ROUNDS } from '../config/crypto.config';
 
 @Injectable()
 export class UserService {
@@ -17,9 +15,15 @@ export class UserService {
     return this.userRepository.findOne({ email });
   }
 
-  async createUser(dto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
+    const { email, password, username } = createUserDto;
     try {
-      const user = await this.userRepository.create(User.createUser(dto));
+      const user = await this.userRepository.create({
+        email,
+        password,
+        username,
+      });
+
       return this.userRepository.save(user);
     } catch (e) {
       /** Todo: Handle Already Exist User Exception */
@@ -32,8 +36,9 @@ export class UserService {
   // }
 
   async signUp(createUserDto: CreateUserDto) {
+    const { email, password, username } = createUserDto;
     const exist = await this.userRepository.findOne({
-      email: createUserDto.email,
+      email,
     });
     Logger.debug(`Find User: `, exist?.email);
 
@@ -41,9 +46,11 @@ export class UserService {
       return new BadRequestException('이미 존재하는 이메일입니다.');
     }
 
-    const user = await this.userRepository.create(
-      User.createUser(createUserDto),
-    );
+    const user = await this.userRepository.create({
+      email,
+      password,
+      username,
+    });
 
     console.log(`Save User: `, user);
 
