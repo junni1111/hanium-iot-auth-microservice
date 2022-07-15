@@ -40,13 +40,4 @@ export class User {
       throw e;
     }
   }
-
-  public static createUser({ email, password, username }: CreateUserDto) {
-    const user = new User();
-    user.email = email;
-    user.password = password;
-    user.username = username;
-
-    return user;
-  }
 }

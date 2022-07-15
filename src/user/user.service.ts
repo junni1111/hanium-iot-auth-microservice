@@ -43,16 +43,15 @@ export class UserService {
       });
       Logger.debug(`Find User: `, exist?.email);
 
-
       if (exist) {
         throw new BadRequestException('Email Exist');
       }
 
-    const user = await this.userRepository.create({
-      email,
-      password,
-      username,
-    });
+      const user = await this.userRepository.create({
+        email,
+        password,
+        username,
+      });
 
       console.log(`Save User: `, user);
 
