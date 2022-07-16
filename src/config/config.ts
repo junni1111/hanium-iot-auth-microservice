@@ -8,6 +8,9 @@ export default () => {
   });
 };
 
+export const REDIS_HOST = process.env.REDIS_HOST || '0.0.0.0';
+export const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
+
 export const USER_AUTH_HOST = process.env.USER_AUTH_HOST || '0.0.0.0';
 export const USER_AUTH_PORT =
   Number(process.env.AUTH_PORT_9999_TCP_PORT) || 9999;

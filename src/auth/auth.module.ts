@@ -8,7 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { jwtConfigs } from '../config/jwt.config';
 import { JwtStrategy } from './guards/jwt.strategy';
 import * as redisStore from 'cache-manager-ioredis';
-import { REDIS_HOST, REDIS_PORT } from '../config/redis.config';
+import { REDIS_HOST, REDIS_PORT } from 'src/config/config';
 
 @Module({
   imports: [
