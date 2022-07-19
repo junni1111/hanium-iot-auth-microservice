@@ -22,10 +22,10 @@ export class AuthController {
 
   @Get('refresh')
   refresh(
-    @Query('access') accessToken: string,
+    @Query('userId') userId: number,
     @Query('refresh') refreshToken: string,
   ) {
-    return this.authService.regenerateAccessToken(accessToken, refreshToken);
+    return this.authService.regenerateAccessToken(userId, refreshToken);
   }
 
   @Get('jwt')
