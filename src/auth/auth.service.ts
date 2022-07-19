@@ -44,7 +44,7 @@ export class AuthService {
     }
   }
 
-  async signRefreshToken(user: any) {
+  async signRefreshToken(userId: number) {
     try {
       const token = this.jwtService.sign(
         {},
@@ -54,7 +54,7 @@ export class AuthService {
         },
       );
 
-      const key = RefreshTokenKey(user.email);
+      const key = RefreshTokenKey(userId);
       await this.cacheManager.set<string>(key, token, { ttl: 1209600 }); // 🤔 2주
       Logger.debug(await this.cacheManager.get<string>(key));
 
@@ -65,25 +65,29 @@ export class AuthService {
     }
   }
 
-  signAccessToken(user: any) {
-    return this.jwtService.sign({ user });
+  signAccessToken(userId: number) {
+    return this.jwtService.sign({ id: userId });
   }
 
-  async compareRefreshToken(user: any, refreshToken: string) {
-    const key = RefreshTokenKey(user['email']); // 🤔 Need Refactor!!
+  async compareRefreshToken(userId: any, refreshToken: string) {
+    const key = RefreshTokenKey(userId); // 🤔 Need Refactor!!
     const cachedRefreshToken = await this.cacheManager.get<string>(key);
 
     return refreshToken === cachedRefreshToken;
   }
 
-  async regenerateAccessToken(accessToken: string, refreshToken: string) {
+  async regenerateAccessToken(userId: number, refreshToken: string) {
     try {
-      const decoded = this.jwtService.decode(accessToken);
-      const user = decoded['user'];
-
-      if (await this.compareRefreshToken(user, refreshToken)) {
-        return this.signAccessToken(user);
+      if (await this.compareRefreshToken(userId, refreshToken)) {
+        return {
+          userId: userId,
+          accessToken: this.signAccessToken(userId),
+          refreshToken: await this.signRefreshToken(userId),
+        };
       }
+
+      const key = RefreshTokenKey(userId);
+      await this.cacheManager.del(key);
       throw new ForbiddenException('Jwt Not Validated');
     } catch (e) {
       throw new ForbiddenException('Jwt Not Validated');
@@ -91,8 +95,8 @@ export class AuthService {
   }
 
   async signIn(user: any) {
-    const accessToken = this.signAccessToken(user);
-    const refreshToken = await this.signRefreshToken(user);
+    const accessToken = this.signAccessToken(user.id);
+    const refreshToken = await this.signRefreshToken(user.id);
 
     return {
       userId: user?.id,
