@@ -6,7 +6,7 @@ import { LocalStrategy } from './guards/local.strategy';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './guards/jwt.strategy';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtConfigService } from '../config/jwt/jwt.service';
 import { JwtConfigModule } from '../config/jwt/jwt.module';
 import { CacheConfigService } from '../config/cache/cache.service';
@@ -21,6 +21,8 @@ import { CacheConfigModule } from '../config/cache/cache.module';
       inject: [JwtConfigService],
     }),
     PassportModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: () => {
         return { defaultStrategy: 'jwt' };
       },

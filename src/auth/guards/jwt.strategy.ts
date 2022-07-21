@@ -4,13 +4,11 @@ import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    // private configService: ConfigService
+  constructor(private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: 'secret/ret',
-
+      secretOrKey: 'my_dev_refresh_secret',
       // secretOrKey: configService.get<string>('JWT_ACCESS_SECRET'),
     });
   }
