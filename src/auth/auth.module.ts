@@ -5,24 +5,32 @@ import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './guards/local.strategy';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
-import { jwtConfigs } from '../config/jwt.config';
 import { JwtStrategy } from './guards/jwt.strategy';
-import * as redisStore from 'cache-manager-ioredis';
-import { REDIS_HOST, REDIS_PORT } from 'src/config/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtConfigService } from '../config/jwt/jwt.service';
+import { JwtConfigModule } from '../config/jwt/jwt.module';
+import { CacheConfigService } from '../config/cache/cache.service';
+import { CacheConfigModule } from '../config/cache/cache.module';
 
 @Module({
   imports: [
     UserModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    /** Todo: Remove AUTH MS After */
-    JwtModule.register({
-      secret: jwtConfigs.secret,
-      signOptions: { expiresIn: jwtConfigs.expiresIn },
+    JwtModule.registerAsync({
+      imports: [JwtConfigModule],
+      useClass: JwtConfigService,
+      inject: [JwtConfigService],
     }),
-    CacheModule.register({
-      store: redisStore,
-      host: REDIS_HOST,
-      port: REDIS_PORT,
+    PassportModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: () => {
+        return { defaultStrategy: 'jwt' };
+      },
+    }),
+    CacheModule.registerAsync({
+      imports: [CacheConfigModule],
+      useClass: CacheConfigService,
+      inject: [CacheConfigService],
     }),
   ],
   controllers: [AuthController],
