@@ -2,11 +2,10 @@ import * as path from 'path';
 import * as dotenv from 'dotenv';
 
 /** Todo: Refactor to service */
-export default () => {
-  dotenv.config({
-    path: path.join(__dirname, `../../env/.env.${process.env.NODE_ENV}`),
-  });
-};
+
+dotenv.config({
+  path: path.join(__dirname, `../../env/.env.${process.env.NODE_ENV}`),
+});
 
 export const REDIS_HOST = process.env.REDIS_HOST || '0.0.0.0';
 export const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;

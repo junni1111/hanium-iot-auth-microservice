@@ -10,10 +10,10 @@ import {
   POSTGRES,
 } from '../util/constants/database';
 import * as path from 'path';
-import DatabaseConfigs from '../config/config';
+// import DatabaseConfigs from '../config/config';
 import { Logger } from '@nestjs/common';
 /** Todo: Refactor to service */
-DatabaseConfigs();
+// DatabaseConfigs();
 
 class DatabaseService {
   constructor(private env: { [k: string]: string | undefined }) {}
