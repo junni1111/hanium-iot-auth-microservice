@@ -10,14 +10,15 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { UserService } from '../user/user.service';
-import { jwtConfigs } from '../config/jwt.config';
 import { Cache } from 'cache-manager';
 import { RefreshTokenKey } from '../util/key-generator';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private configService: ConfigService,
     private userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
@@ -49,8 +50,11 @@ export class AuthService {
       const token = this.jwtService.sign(
         {},
         {
-          secret: jwtConfigs.refreshSecret,
-          expiresIn: jwtConfigs.refreshExpiresIn,
+          // secret: jwtConfigs.refreshSecret,
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
+
+          // expiresIn: jwtConfigs.refreshExpiresIn,
         },
       );
 
