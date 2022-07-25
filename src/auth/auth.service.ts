@@ -117,4 +117,13 @@ export class AuthService {
       throw new ForbiddenException('Jwt Not Validated');
     }
   }
+
+  async signOut(userId: number) {
+    try {
+      const key = RefreshTokenKey(userId);
+      return await this.cacheManager.del(key);
+    } catch (e) {
+      throw e;
+    }
+  }
 }

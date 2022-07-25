@@ -29,7 +29,12 @@ export class AuthController {
   }
 
   @Get('jwt')
-  async auth(@Query('jwt') jwt: string) {
+  auth(@Query('jwt') jwt: string) {
     return this.authService.validateToken(jwt);
+  }
+
+  @Get('signout')
+  signOut(@Query('userId') userId: number) {
+    return this.authService.signOut(userId);
   }
 }
