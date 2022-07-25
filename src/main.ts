@@ -7,10 +7,14 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const USER_AUTH_HOST = configService.get<string>('USER_AUTH_HOST');
-  const USER_AUTH_PORT = configService.get<number>('USER_AUTH_PORT');
+  const USER_AUTH_HOST = configService.get<string>('USER_AUTH_HOST', '0.0.0.0');
+  const USER_AUTH_PORT = configService.get<number>(
+    'AUTH_PORT_9999_TCP_PORT',
+    9999,
+  );
   const USER_AUTH_HEALTH_PORT = configService.get<number>(
-    'USER_AUTH_HEALTH_PORT',
+    'AUTH_PORT_9000_TCP_PORT',
+    9000,
   );
 
   console.log(`ENV Level: `, process.env.NODE_ENV);
