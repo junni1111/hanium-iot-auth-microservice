@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { AuthModule } from './auth.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from '../user/user.module';
@@ -10,8 +9,6 @@ import { PassportModule } from '@nestjs/passport';
 import { CacheModule } from '@nestjs/common';
 import { CacheConfigModule } from '../config/cache/cache.module';
 import { CacheConfigService } from '../config/cache/cache.service';
-import { User } from '../user/entities/user.entity';
-// import { jwtConfigs } from '../config/jwt/jwt.service';
 
 describe('AuthService', () => {
   let service: AuthService;
