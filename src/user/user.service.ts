@@ -36,7 +36,7 @@ export class UserService {
   // }
 
   async signUp(createUserDto: CreateUserDto) {
-    const { email, password, username, phoneNumber, address } = createUserDto;
+    const { email, password, username } = createUserDto;
     try {
       const exist = await this.userRepository.findOne({
         email,
@@ -51,8 +51,6 @@ export class UserService {
         email,
         password,
         username,
-        phoneNumber,
-        address,
       });
 
       console.log(`Save User: `, user);
