@@ -16,8 +16,8 @@ import { Logger } from '@nestjs/common';
 @Entity({ name: 'users' })
 export class User {
   @ApiProperty({ example: 1234, description: 'User id' })
-  @IsNumber()
   @PrimaryGeneratedColumn({ type: 'integer', name: 'id' })
+  @IsNumber()
   id: number;
 
   @ApiProperty({

@@ -30,6 +30,7 @@ export class AuthController {
 
   @Get('jwt')
   auth(@Query('jwt') jwt: string) {
+    console.log(`jwt: `, jwt);
     return this.authService.validateToken(jwt);
   }
 
