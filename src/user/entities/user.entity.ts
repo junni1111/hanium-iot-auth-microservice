@@ -27,6 +27,13 @@ export class User {
   @Column()
   username: string;
 
+  // @Column()
+  // address: string;
+  //
+  // @Index({ unique: true })
+  // @Column()
+  // phoneNumber: string;
+
   @CreateDateColumn({ type: 'timestamptz', name: 'create_at' })
   createAt: Date;
 
