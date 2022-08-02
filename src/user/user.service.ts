@@ -63,7 +63,7 @@ export class UserService {
     }
   }
 
-  async dbClear() {
+  async clearUserDB() {
     return await this.userRepository.createQueryBuilder().delete().execute();
   }
 
