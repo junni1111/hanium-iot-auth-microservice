@@ -63,6 +63,10 @@ export class UserService {
     }
   }
 
+  async dbClear() {
+    return await this.userRepository.createQueryBuilder().delete().execute();
+  }
+
   // findOne(email: string) {
   //   const [user] = mockUsers.filter((user) => user.email === email);
   //

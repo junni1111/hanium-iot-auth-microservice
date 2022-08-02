@@ -40,7 +40,7 @@ export class User {
   username: string;
 
   @ApiProperty({ example: '010-1234-5678', description: 'User phone number' })
-  @Column({ unique: true, name: 'phone_num' })
+  @Column({ name: 'phone_num', nullable: true })
   @IsString()
   phoneNumber: string;
 
@@ -50,6 +50,7 @@ export class User {
     enum: UserRoles,
     default: UserRoles.GUEST,
     name: 'role',
+    nullable: true,
   })
   @IsEnum(UserRoles)
   role: UserRoles;
