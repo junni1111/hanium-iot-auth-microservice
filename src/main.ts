@@ -7,7 +7,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
   const USER_AUTH_HOST = configService.get<number>('USER_AUTH_HOST');
-  const USER_AUTH_PORT = configService.get<number>('AUTH_PORT_9000_TCP_PORT');
+  const USER_AUTH_PORT = configService.get<number>(
+    'AUTH_PORT_9000_TCP_PORT',
+    9000,
+  );
 
   console.log(`ENV Level: `, process.env.NODE_ENV);
   console.log(`ENV List: `, process.env);
