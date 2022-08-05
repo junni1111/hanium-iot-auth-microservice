@@ -60,11 +60,7 @@ export class UserService {
 
       console.log(`Save User: `, user);
 
-      const { data } = await this.notificationService.sendEmail(
-        new SendMailDto(email, 'hello'),
-      );
-
-      console.log('email send result : ', data);
+      this.notificationService.sendEmail(new SendMailDto(email, 'hello'));
 
       return this.userRepository.save(user);
     } catch (e) {
