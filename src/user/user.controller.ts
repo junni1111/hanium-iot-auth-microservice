@@ -2,12 +2,11 @@ import {
   Body,
   Controller,
   Delete,
-  Get,
   HttpStatus,
   Post,
   Res,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SendMessageDto } from '../notification/dto/send-message.dto';
@@ -27,20 +26,13 @@ export class UserController {
   }
 
   @Post('message')
-  async sendMessage(
-    @Res() res: Response,
-    @Body() sendMessageDto: SendMessageDto,
-  ) {
+  async sendMessage(@Body() sendMessageDto: SendMessageDto) {
     try {
       const { data } = await this.notificationService.sendMessage(
         sendMessageDto,
       );
 
-      return res.send({
-        statusCode: HttpStatus.OK,
-        message: 'db clear completed',
-        data,
-      });
+      return data;
     } catch (e) {
       throw e;
     }
