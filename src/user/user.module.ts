@@ -5,7 +5,7 @@ import { UserController } from './user.controller';
 import { User } from './entities/user.entity';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationModule } from '../notification/notification.module';
-import { HttpModule } from '@nestjs/axios';
+import { HttpModule } from ' ';
 
 @Module({
   imports: [
