@@ -3,12 +3,15 @@ import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { NotificationService } from '../notification/notification.service';
+import { SendMailDto } from '../notification/dto/send-mail.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly notificationService: NotificationService,
   ) {}
 
   findOne(email: string) {
@@ -57,10 +60,16 @@ export class UserService {
 
       console.log(`Save User: `, user);
 
+      this.notificationService.sendEmail(new SendMailDto(email, 'hello'));
+
       return this.userRepository.save(user);
     } catch (e) {
       throw e;
     }
+  }
+
+  async clearUserDB() {
+    return await this.userRepository.createQueryBuilder().delete().execute();
   }
 
   // findOne(email: string) {
