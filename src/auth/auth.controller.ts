@@ -17,6 +17,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('signin')
   async signIn(@Req() req: any) {
+    console.log(`Recv User: `, req.user);
     return this.authService.signIn(req.user);
   }
 

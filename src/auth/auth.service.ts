@@ -13,6 +13,7 @@ import { UserService } from '../user/user.service';
 import { Cache } from 'cache-manager';
 import { RefreshTokenKey } from '../util/key-generator';
 import { ConfigService } from '@nestjs/config';
+import { AuthUserDto } from '../user/dto/auth-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, rawPassword: string) {
+  async validateUser(email: string, rawPassword: string): Promise<AuthUserDto> {
     try {
       const user = await this.userService.findOne(email);
       console.log('user : ', user);
@@ -69,8 +70,8 @@ export class AuthService {
     }
   }
 
-  signAccessToken(userId: number) {
-    return this.jwtService.sign({ id: userId });
+  signAccessToken(authUserDto: AuthUserDto) {
+    return this.jwtService.sign({ ...authUserDto });
   }
 
   async compareRefreshToken(userId: any, refreshToken: string) {
@@ -85,7 +86,9 @@ export class AuthService {
       if (await this.compareRefreshToken(userId, refreshToken)) {
         return {
           userId: userId,
-          accessToken: this.signAccessToken(userId),
+          // Todo: Remove Mock Token
+          // accessToken: this.signAccessToken(userId),
+          accessToken: 'mock',
           refreshToken: await this.signRefreshToken(userId),
         };
       }
@@ -98,12 +101,12 @@ export class AuthService {
     }
   }
 
-  async signIn(user: any) {
-    const accessToken = this.signAccessToken(user.id);
-    const refreshToken = await this.signRefreshToken(user.id);
+  async signIn(authUserDto: AuthUserDto) {
+    const accessToken = this.signAccessToken(authUserDto);
+    const refreshToken = await this.signRefreshToken(authUserDto.id);
 
     return {
-      userId: user?.id,
+      userId: authUserDto?.id,
       accessToken,
       refreshToken,
     };
@@ -111,9 +114,10 @@ export class AuthService {
 
   validateToken(token: string) {
     try {
-      console.log('jwt : ', token);
+      // console.log('jwt : ', token);
       return this.jwtService.verify(token);
     } catch (e) {
+      console.log(e);
       throw new ForbiddenException('Jwt Not Validated');
     }
   }
