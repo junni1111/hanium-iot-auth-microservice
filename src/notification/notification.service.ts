@@ -26,12 +26,12 @@ export class NotificationService {
   sendEmail(sendMailDto: SendMailDto) {
     return lastValueFrom(
       this.httpService.post(this.requestUrl('email'), sendMailDto),
-    );
+    ).then((res) => res.data);
   }
 
   sendMessage(sendMessageDto: SendMessageDto) {
     return lastValueFrom(
       this.httpService.post(this.requestUrl('telegram'), sendMessageDto),
-    );
+    ).then((res) => res.data);
   }
 }

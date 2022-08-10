@@ -28,11 +28,11 @@ export class UserController {
   @Post('message')
   async sendMessage(@Body() sendMessageDto: SendMessageDto) {
     try {
-      const { data } = await this.notificationService.sendMessage(
+      const sendResult = await this.notificationService.sendMessage(
         sendMessageDto,
       );
 
-      return data;
+      return sendResult;
     } catch (e) {
       throw e;
     }

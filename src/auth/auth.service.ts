@@ -51,11 +51,8 @@ export class AuthService {
       const token = this.jwtService.sign(
         {},
         {
-          // secret: jwtConfigs.refreshSecret,
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
           expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
-
-          // expiresIn: jwtConfigs.refreshExpiresIn,
         },
       );
 
@@ -104,6 +101,8 @@ export class AuthService {
   async signIn(authUserDto: AuthUserDto) {
     const accessToken = this.signAccessToken(authUserDto);
     const refreshToken = await this.signRefreshToken(authUserDto.id);
+    console.log('accessToken: ', accessToken);
+    console.log('refreshToken: ', refreshToken);
 
     return {
       userId: authUserDto?.id,
