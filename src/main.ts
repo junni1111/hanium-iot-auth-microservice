@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { setupSwagger } from './util/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,6 +15,8 @@ async function bootstrap() {
 
   console.log(`ENV Level: `, process.env.NODE_ENV);
   console.log(`ENV List: `, process.env);
+
+  setupSwagger(app);
 
   await app.listen(USER_AUTH_PORT);
   Logger.log(`Start Auth Microservice 

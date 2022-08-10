@@ -11,7 +11,10 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SendMessageDto } from '../notification/dto/send-message.dto';
 import { NotificationService } from '../notification/notification.service';
+import { USER } from '../util/constants/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags(USER)
 @Controller()
 export class UserController {
   constructor(
